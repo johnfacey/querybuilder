@@ -4,9 +4,7 @@ This project will let you perform quick queries in PHP to a MySQL (MySQLi) datab
 
 ## Getting Started
 
-Edit the config.json to match the server you are using. 
-If you are using a service such as https://ngrok.com you may need to add the url to your Business Manager allowed origins.
-**NOTE:** This package only forwards OCAPI requests from one point to another. The main purpose is for routing data around CORS and is typically useful for Mobile Applications. x-dw-client-id as a header attribute must be used instead of client_id as a url parameter.
+Coming soon.
 
 ## Prerequisites
 ```
