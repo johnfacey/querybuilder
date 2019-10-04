@@ -18,18 +18,24 @@ class QueryBuilder	{
 	}
 	
 
-    public function getData() {
+    public function getData($type) {
 		//echo $this->query;
 		if ($result=mysqli_query($this->conn,$this->query)) {
-       
-           $aObj = array();
-            while ($obj = $result->fetch_object()) {
-              try { 
-              if (is_object($obj)) {
-                  array_push($aObj,$obj);
-               }
-                } catch (Exception $e) {}
-            }
+
+			$aObj = array();
+
+			if ($type == "select") {
+
+				while ($obj = $result->fetch_object()) {
+				  try { 
+				  if (is_object($obj)) {
+					  array_push($aObj,$obj);
+				   }
+					} catch (Exception $e) {}
+				}
+			} else {
+	
+			}
 
             return $aObj;
         }
@@ -42,12 +48,19 @@ class QueryBuilder	{
     */
 
 	public function build() {
-	
+		if ($this->type == 'delete') {
+			$this->query = 'delete ';
+		}
+
+		if ($this->type == 'update') {
+			$this->query = 'update ';
+		}
 		if ($this->type == 'select') { 
 			$this->query = 'select ';
-			if ($this->columns != '') {
-				$this->query .= $this->columns . ' ';
-			}
+		}
+		if ($this->columns != '') {
+			$this->query .= $this->columns . ' ';
+		}
 			
 			$this->query .= 'from ' . $this->table . ' ';
 			
@@ -60,14 +73,14 @@ class QueryBuilder	{
                     
                      $this->query .= ' join ';
                     
-                    if ($tJoin->operator == 'IN') {	
-                        $this->query .= "$tJoin->name $tJoin->operator ($tJoin->value) ";
-                    } else {
-                        $this->query .= "$tJoin->joinTable on  $tJoin->column1 $tJoin->operator $tJoin->column2 ";
-                    }
-					
+						if ($tJoin->operator == 'IN') {	
+							$this->query .= "$tJoin->name $tJoin->operator ($tJoin->value) ";
+						} else {
+							$this->query .= "$tJoin->joinTable on  $tJoin->column1 $tJoin->operator $tJoin->column2 ";
+						}
+					}
                 }
-            }
+            
 			
 			//build where
 			$this->query .= 'where ';
@@ -104,14 +117,15 @@ class QueryBuilder	{
 				if ($i == 0 ) {
 					$and = "";
 				}
+
 				$this->query = $this->query . $and . $append;
-			}
-  //and patch
-    $testAnd = substr($this->query , -5);
-      
-      if ($testAnd == " and ") {
-       $this->query =  substr($this->query, 0, -5);
-      }
+				}
+			//and patch
+				$testAnd = substr($this->query , -5);
+				
+				if ($testAnd == " and ") {
+				$this->query =  substr($this->query, 0, -5);
+				}
 
 			//build group by
 			if ($this->aGroupBy != "") {
@@ -132,9 +146,9 @@ class QueryBuilder	{
 				$this->query .= 'offset ' . $this->aOffsetBy . ' ' ;
 			}
            
-		}
+		
 
-        return $this->getData();
+        return $this->getData($this->type);
 	
 	}
 	
@@ -153,6 +167,17 @@ class QueryBuilder	{
     *
     */
 	public function select($table)	{
+		$this->type = __FUNCTION__;
+		$this->table = $table;
+		return $this;
+	}
+
+	/**
+    *
+    * delete : creates the delete function
+    *
+    */
+	public function delete($table)	{
 		$this->type = __FUNCTION__;
 		$this->table = $table;
 		return $this;
